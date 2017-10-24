@@ -23,7 +23,20 @@
 <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_weight = "5.0">
+    android:layout_weight = "6.0">
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1.0"
+        android:text="Make pin"
+        android:id="@+id/pinButton"/>
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1.0"
+        android:text="Account"
+        android:id="@+id/accountButton"/>
 
 
 </LinearLayout>
