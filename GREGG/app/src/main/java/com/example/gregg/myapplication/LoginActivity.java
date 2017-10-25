@@ -46,20 +46,12 @@ public class LoginActivity extends AppCompatActivity {
                 final String userEmail = email.getText().toString();
                 final String userPassword = password.getText().toString();
 
-                // Response.Listener<String> responseListener = new Response.Listener<String>() {
-                //    @Override
-                //   public void onResponse(String response) {
                 try {
-                    //JSONObject jsonResponse = new JSONObject(response);
-                    //boolean pass = jsonResponse.getBoolean("Pass");
+
                     String goodPas = JDBCInterface.getPassword(userEmail);
                     System.out.println("goodPas="+goodPas);
                     if (userPassword.equals(goodPas)) {
-                        //Intent intent = new Intent(LoginActivity.this, MapsActivity.class);
-                        //String email1 = jsonResponse.getString("email");
-                        //String password1 = jsonResponse.getString("password");
-                        //intent.putExtra("email", email1);
-                        //intent.putExtra("password", password1);
+
                         startActivity(new Intent(LoginActivity.this, MapsActivity.class));
                     } else {
                         AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
@@ -71,12 +63,6 @@ public class LoginActivity extends AppCompatActivity {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                //      }
-                //    }
-
-                //  LoginRequest loginRequest = new LoginRequest(userEmail, userPassword, responseListener);
-                //  RequestQueue queue = Volley.newRequestQueue(LoginActivity.this);
-                //  queue.add(loginRequest);
             }
         });
     }
