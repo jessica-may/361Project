@@ -59,9 +59,33 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.gregg.myapplication.LoginActivity" />
         </activity>
-        <activity android:name=".CreatePin"
-            android:label="@string/app_name"
-            <intent-filter/>
+        <activity
+            android:name=".CreatePin"
+            android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".FoodPin"
+            android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".FreeStuffPin"
+            android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>
