@@ -14,4 +14,8 @@
         completions."
     </string>
     <string name="title_activity_maps">Map</string>
+    <string-array name="buildings">
+        <item>Broyhill Fountain</item>
+        <item>Union</item>
+    </string-array>
 </resources>

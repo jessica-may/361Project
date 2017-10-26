@@ -10,6 +10,7 @@ import java.sql.SQLException;
 import android.os.AsyncTask;
 
 public class JDBCInterface{
+	public static String lastUsername;
 	public static void setupDBs(){
 		//set up pins and users databases
 		String create_pins = "CREATE TABLE IF NOT EXISTS `pins` ("
@@ -75,6 +76,7 @@ public class JDBCInterface{
 		while(rs.next()){
 			password=rs.getString("password");
 		}
+		lastUsername = username;
 		return password;
 	}
 

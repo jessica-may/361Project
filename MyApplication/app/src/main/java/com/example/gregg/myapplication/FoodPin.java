@@ -1,5 +1,6 @@
 package com.example.gregg.myapplication;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -28,7 +29,8 @@ public class FoodPin extends AppCompatActivity {
         create.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view){
-                JDBCInterface.addPin(location, comment, "food", "username");
+                JDBCInterface.addPin(location, comment, "food", JDBCInterface.lastUsername);
+                startActivity(new Intent(FoodPin.this, MapsActivity.class));
             }
 
         });
