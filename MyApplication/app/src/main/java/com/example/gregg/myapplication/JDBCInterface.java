@@ -68,7 +68,7 @@ public class JDBCInterface{
 		ArrayList<String[]> pins = new ArrayList<String[]>(); //later user <Pin>
 		while(rs.next()){
 			String[] pin = {rs.getString("position"),rs.getString("category")
-				,rs.getString("description"),rs.getString("username")};
+                ,rs.getString("description"),rs.getString("username")};
 			pins.add(pin);
 		}
 		return pins;
