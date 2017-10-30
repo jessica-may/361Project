@@ -25,15 +25,9 @@ public class JDBCInterface{
 		+ "`username` VARCHAR(255) NOT NULL,"
 		+ "`password` VARCHAR(255) NOT NULL,"
 		+ "PRIMARY KEY(`userID`));";
-		String create_buildings="CREATE TABLE IF NOT EXISTS `buildings` ("
-				+ "`buildingID` INT NOT NULL AUTO_INCREMENT,"
-				+ "`name` VARCHAR(255) NOT NULL,"
-				+ "`location` VARCHAR(255) NOT NULL,"
-				+ "PRIMARY KEY(`buildingID`));";
 		ExecuteUpdateTask eu = new ExecuteUpdateTask();
 		eu.executeOnExecutor(ExecuteUpdateTask.THREAD_POOL_EXECUTOR,create_pins);
 		eu.executeOnExecutor(ExecuteUpdateTask.THREAD_POOL_EXECUTOR,create_users); //hopefully using execute twice is okay
-		eu.executeOnExecutor(ExecuteQueryTask.THREAD_POOL_EXECUTOR, create_buildings);
 	}
 
 	public static void clearDBs(){
@@ -68,7 +62,7 @@ public class JDBCInterface{
 		ArrayList<String[]> pins = new ArrayList<String[]>(); //later user <Pin>
 		while(rs.next()){
 			String[] pin = {rs.getString("position"),rs.getString("category")
-                ,rs.getString("description"),rs.getString("username")};
+				,rs.getString("description"),rs.getString("username")};
 			pins.add(pin);
 		}
 		return pins;
@@ -136,24 +130,5 @@ public class JDBCInterface{
 				return false;
 			}
 		}
-	}
-
-	public static String getBuildingLocation(String building) throws Exception{
-		String get_location="SELECT * FROM `buildings` WHERE `name`='"+building+"';";
-		ExecuteQueryTask eq=new ExecuteQueryTask();
-		ResultSet rs=eq.executeOnExecutor(ExecuteQueryTask.THREAD_POOL_EXECUTOR,get_location).get();
-		String location="";
-		while(rs.next()){
-			location=rs.getString("location");
-		}
-		return location;
-	}
-
-	public static void addBuilding(String name, String location){
-		String add_building="INSERT INTO `buildings` "
-				+ "(`name`,`location`) VALUES "
-				+ "('"+name+"','"+location+"');";
-		ExecuteUpdateTask eu = new ExecuteUpdateTask();
-		eu.executeOnExecutor(ExecuteQueryTask.THREAD_POOL_EXECUTOR,add_building);
 	}
 }
