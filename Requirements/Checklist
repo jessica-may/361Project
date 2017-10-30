@@ -1,0 +1,6 @@
+Group 1 Requirements Checklist
+
+Navigation: can navigate from login screen to map screen and create account screens and back
+Pin dropping: can drop pins on map, which are uploaded to a database
+Database reading: map displays pins from database
+Create account: can create accounts from create account screen
