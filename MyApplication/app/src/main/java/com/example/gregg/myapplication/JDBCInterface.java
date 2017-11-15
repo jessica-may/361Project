@@ -72,7 +72,7 @@ public class JDBCInterface{
 		String get_user="SELECT * FROM `users` WHERE `username`='"+username+"';";
 		ExecuteQueryTask eq=new ExecuteQueryTask();
 		ResultSet rs=eq.executeOnExecutor(ExecuteQueryTask.THREAD_POOL_EXECUTOR,get_user).get();
-		String password="";
+		String password=null;
 		while(rs.next()){
 			password=rs.getString("password");
 		}
