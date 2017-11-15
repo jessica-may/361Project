@@ -23,12 +23,11 @@ public class FoodPin extends AppCompatActivity {
         final EditText review = (EditText) findViewById(R.id.review);
         final Spinner local = (Spinner) findViewById(R.id.local);
 
-        final String comment = review.getText().toString();
-        final String location = local.toString();
-
         create.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view){
+                final String comment = review.getText().toString();
+                final String location = local.getSelectedItem().toString();
                 JDBCInterface.addPin(location, comment, "food", JDBCInterface.lastUsername);
                 startActivity(new Intent(FoodPin.this, MapsActivity.class));
             }
