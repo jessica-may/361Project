@@ -45,9 +45,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap = googleMap;
 
         // Add a marker at Union and move the camera
-        LatLng greenspace = new LatLng(40.818665, -96.700628);
-        mMap.addMarker(new MarkerOptions().position(greenspace).title("Marker at Greenspace"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(greenspace));
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(17f));
+        LatLng greenspace = new LatLng(40.817947, -96.7003121);
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(greenspace, 17));
+
+        try {
+            for(String[] pin : JDBCInterface.getPins()){
+                String latLng = JDBCInterface.getBuildingLocation(pin[0]);
+                String[] split = latLng.split(",");
+                MarkerOptions marker = new MarkerOptions().position(new LatLng(Double.parseDouble(split[0]), Double.parseDouble(split[1]))).title("Test");
+                mMap.addMarker(marker);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
