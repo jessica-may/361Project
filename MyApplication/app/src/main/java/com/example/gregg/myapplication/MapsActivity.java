@@ -28,12 +28,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         System.out.print("here in maps");
         final Button pin = findViewById(R.id.pinButton);
+        final Button account = findViewById(R.id.accountButton);
+
 
         pin.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view){
                 System.out.println("reached here");
                 startActivity(new Intent(MapsActivity.this, CreatePin.class));
+            }
+        });
+
+        account.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MapsActivity.this, AccountActivity.class));
             }
         });
     }

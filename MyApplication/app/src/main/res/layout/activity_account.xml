@@ -3,8 +3,28 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <EditText
+        android:id="@+id/changepass"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:text="Change Password" />
+
+    <EditText
+        android:id="@+id/new_password"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="New Password"
+        android:inputType="textPassword" />
     <Button
-        android:id="@+id/lougout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/change_password"
+        android:text="Change Password"/>
+    <Button
+        android:id="@+id/logout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Logout" />
