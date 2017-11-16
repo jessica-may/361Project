@@ -37,30 +37,22 @@ public class RegisterActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String userEmail = email.getText().toString();
                 String userPw = password.getText().toString();
-                try{
-                    JDBCInterface.addUser(userEmail, userPw);
-                    System.out.println("user added");
-                }catch(Exception e){
-                    e.printStackTrace();
-                }
-
-                startActivity(new Intent(RegisterActivity.this,LoginActivity.class));
-                /*Response.Listener<String> responseListener = new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        try{
-                            JSONObject jsonObject = new JSONObject(response);
-                            boolean pass = jsonObject.getBoolean("Pass");
-                            JDBCInterface.addUser(userEmail,userPw);
-                        }catch (Exception e){
-                            e.printStackTrace();
+                    try {
+                        if(JDBCInterface.getPassword(userEmail)==null) {
+                            JDBCInterface.addUser(userEmail, userPw);
+                            System.out.println("user added");
+                            startActivity(new Intent(RegisterActivity.this,LoginActivity.class));
+                        }else{
+                            AlertDialog.Builder builder = new AlertDialog.Builder(RegisterActivity.this);
+                            builder.setMessage("ERROR: Account with that username already exists.")
+                                    .setNegativeButton("Retry", null)
+                                    .create()
+                                    .show();
                         }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                };
 
-                RegisterRequest registerRequest = new RegisterRequest(userEmail, userPw, responseListener);
-                RequestQueue requestQueue = Volley.newRequestQueue(RegisterActivity.this);
-                requestQueue.add(registerRequest);*/
             }
         });
     }
