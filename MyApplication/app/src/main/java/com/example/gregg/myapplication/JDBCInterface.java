@@ -70,6 +70,20 @@ public class JDBCInterface{
 		eu.executeOnExecutor(ExecuteQueryTask.THREAD_POOL_EXECUTOR,add_building);
 	}
 
+	public static void changePassword(String username, String password){
+		String change_pw="UPDATE `users` SET `password`='"+password
+		+"' WHERE `username`='"+username+"';";
+		ExecuteUpdateTask eu = new ExecuteUpdateTask();
+		eu.executeOnExecutor(ExecuteQueryTask.THREAD_POOL_EXECUTOR,change_pw);
+	}
+
+	public static void deleteUser(String username){
+		String del_user="DELETE FROM `users` WHERE `username`='"
+		+username+"';";
+		ExecuteUpdateTask eu = new ExecuteUpdateTask();
+		eu.executeOnExecutor(ExecuteQueryTask.THREAD_POOL_EXECUTOR,del_user);
+	}
+
 	public static ArrayList<String[]> getPins() throws Exception{
 		String get_pins = "SELECT * FROM `pins`";
 		ExecuteQueryTask eq = new ExecuteQueryTask();
