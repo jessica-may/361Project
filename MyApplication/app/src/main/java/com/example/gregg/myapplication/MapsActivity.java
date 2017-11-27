@@ -13,6 +13,8 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.HashMap;
+
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
@@ -26,7 +28,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        System.out.print("here in maps");
         final Button pin = findViewById(R.id.pinButton);
         final Button account = findViewById(R.id.accountButton);
 
@@ -34,7 +35,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         pin.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view){
-                System.out.println("reached here");
                 startActivity(new Intent(MapsActivity.this, CreatePin.class));
             }
         });
@@ -58,22 +58,35 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(greenspace, 18));
         //mMap.addMarker(new MarkerOptions().position(new LatLng(40.817947, -96.7003121)));
 
-        System.out.println("!!!!!!!!!!here!!!!!!!!");
+        HashMap<String, Integer> pins = new HashMap<>();
 
         try {
             for(String[] pin : JDBCInterface.getPins()){
-                System.out.println("!!!!!!!!yo!!!!!!");
-                try {
-                    System.out.print("!!!!!" + pin[0] + "!!!!!!!");
-                    String latLng = JDBCInterface.getBuildingLocation(pin[0]);
-                    String[] split = latLng.split(",");
-                    MarkerOptions marker = new MarkerOptions().position(new LatLng(Double.parseDouble(split[0]), Double.parseDouble(split[1]))).title("Test");
-                    mMap.addMarker(marker);
-                }catch(Exception e){
+                pins.put(pin[0], 0);
+            }
+            System.out.println("!!!!!!!!!!!!" + pins + "!!!!!!!!!!!!");
+            for(String[] pin : JDBCInterface.getPins()){
+                int temp = pins.get(pin[0]);
+                temp++;
+                System.out.print(temp);
+                pins.put(pin[0], temp);
+            }
+            System.out.println("!!!!!!!!!!!!" + pins+ "!!!!!!!!!!!/");
+
+            for(String key : pins.keySet()){
+                if(pins.get(key) >= 3){
+                    System.out.println("!!!!!!!!!" + pins.get(key));
+                    try {
+                        String latLng = JDBCInterface.getBuildingLocation(key);
+                        String[] split = latLng.split(",");
+                        MarkerOptions marker = new MarkerOptions().position(new LatLng(Double.parseDouble(split[0]), Double.parseDouble(split[1]))).title("Test");
+                        mMap.addMarker(marker);
+                    }catch(Exception e){
                         e.printStackTrace();
                     }
-
+                }
             }
+
         } catch (Exception e) {
             System.out.print("failed");
             e.printStackTrace();
