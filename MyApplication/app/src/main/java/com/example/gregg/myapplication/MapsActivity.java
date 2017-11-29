@@ -3,6 +3,7 @@ package com.example.gregg.myapplication;
 import android.content.Intent;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.widget.Button;
 
@@ -11,8 +12,10 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
@@ -79,15 +82,35 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     try {
                         String latLng = JDBCInterface.getBuildingLocation(key);
                         String[] split = latLng.split(",");
-                        MarkerOptions marker = new MarkerOptions().position(new LatLng(Double.parseDouble(split[0]), Double.parseDouble(split[1]))).title("Test");
+                        MarkerOptions marker = new MarkerOptions().position(new LatLng(Double.parseDouble(split[0]), Double.parseDouble(split[1]))).title(key);
                         mMap.addMarker(marker);
-                    }catch(Exception e){
+                        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                            String type;
+                            ArrayList<String> comments = new ArrayList<String>();
+                            @Override
+                            public boolean onMarkerClick(Marker marker) {
+                                try {
+                                    for (String[] pins : JDBCInterface.getPins()) {
+                                        if (pins[0].equals(marker.getTitle())) {
+                                            comments.add(pins[2]);
+                                            type = pins[1];
+                                        }
+                                    }
+                                } catch (Exception e){
+                                    e.printStackTrace();
+                                }
+                                return false;
+                            }
+
+                        });
+
+                } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
-            }
 
-        } catch (Exception e) {
-            System.out.print("failed");
+        }
+    }catch (Exception e){
             e.printStackTrace();
-    }}}
+        }
+    }}
