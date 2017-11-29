@@ -139,6 +139,20 @@ public class JDBCInterface{
 		return pins;
 	}
 
+	public static ArrayList<Pin> getPinList() throws Exception{
+		String get_pins = "SELECT * FROM `pins`";
+		ExecuteQueryTask eq = new ExecuteQueryTask();
+		ResultSet rs = eq.executeOnExecutor(ExecuteQueryTask.THREAD_POOL_EXECUTOR,get_pins).get();
+		ArrayList<Pin> pins = new ArrayList<Pin>();
+		while(rs.next()){
+			Pin pin = new Pin(rs.getString("position"),rs.getString("category")
+					,rs.getString("description"),rs.getString("username")
+					,Integer.parseInt(rs.getString("pinID")),Integer.parseInt(rs.getString("votes")));
+			pins.add(pin);
+		}
+		return pins;
+	}
+
 	public static String getPassword(String username) throws Exception{
 		String get_user="SELECT * FROM `users` WHERE `username`='"+username+"';";
 		ExecuteQueryTask eq=new ExecuteQueryTask();
