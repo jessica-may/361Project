@@ -19,6 +19,7 @@ public class JDBCInterface{
 				+ "`position` VARCHAR(255) NOT NULL,"
 				+ "`category` VARCHAR(255) NOT NULL,"
 				+ "`description` VARCHAR(255) NOT NULL,"
+				+ "`time` BIGINT,"
 				+ "`votes` INT DEFAULT 0,"
 				+ "PRIMARY KEY(`pinID`));";
 		String create_users="CREATE TABLE IF NOT EXISTS `users` ("
@@ -37,11 +38,18 @@ public class JDBCInterface{
 				+ "`username` VARCHAR(255) NOT NULL,"
 				+ "`vote` INT NOT NULL,"
 				+ "PRIMARY KEY(`voteID`));";
+		String create_reports="CREATE TABLE IF NOT EXISTS `reports` ("
+				+ "`reportID` INT NOT NULL AUTO_INCREMENT,"
+				+ "`pinID` INT NOT NULL,"
+				+ "`username` VARCHAR(255) NOT NULL,"
+				+ "`text` VARCHAR(255) NOT NULL,"
+				+ "PRIMARY KEY(`reportID`));";
 		ExecuteUpdateTask eu = new ExecuteUpdateTask();
 		eu.executeOnExecutor(ExecuteUpdateTask.THREAD_POOL_EXECUTOR,create_pins);
 		eu.executeOnExecutor(ExecuteUpdateTask.THREAD_POOL_EXECUTOR,create_users); //hopefully using execute twice is okay
 		eu.executeOnExecutor(ExecuteUpdateTask.THREAD_POOL_EXECUTOR,create_buildings);
 		eu.executeOnExecutor(ExecuteUpdateTask.THREAD_POOL_EXECUTOR,create_votes);
+		eu.executeOnExecutor(ExecuteUpdateTask.THREAD_POOL_EXECUTOR,create_reports);
 	}
 
 	public static void clearDBs(){
@@ -49,17 +57,19 @@ public class JDBCInterface{
 		String clear_users = "truncate `users`;";
 		String clear_buildings = "truncate `buildings`;";
 		String clear_votes = "truncate `votes`;";
+		String clear_reports = "truncate `reports`;";
 		ExecuteUpdateTask eu = new ExecuteUpdateTask();
 		eu.executeOnExecutor(ExecuteUpdateTask.THREAD_POOL_EXECUTOR,clear_pins);
 		eu.executeOnExecutor(ExecuteUpdateTask.THREAD_POOL_EXECUTOR,clear_users); //hopefully using execute twice is okay
 		eu.executeOnExecutor(ExecuteUpdateTask.THREAD_POOL_EXECUTOR,clear_buildings);
 		eu.executeOnExecutor(ExecuteUpdateTask.THREAD_POOL_EXECUTOR,clear_votes);
+		eu.executeOnExecutor(ExecuteUpdateTask.THREAD_POOL_EXECUTOR,clear_reports);
 	}
 
 	public static void addPin(String position, String description, String category, String username){
 		String add_pin="INSERT INTO `pins` "
-				+ "(`position`,`description`,`category`,`username`) VALUES "
-				+ "('"+position+"','"+description+"','"+category+"','"+username+"');";
+				+ "(`position`,`description`,`category`,`username`,`time`) VALUES "
+				+ "('"+position+"','"+description+"','"+category+"','"+username+"',"+System.currentTimeMillis()+");";
 		ExecuteUpdateTask eu = new ExecuteUpdateTask();
 		eu.executeOnExecutor(ExecuteQueryTask.THREAD_POOL_EXECUTOR,add_pin);
 	}
@@ -125,6 +135,13 @@ public class JDBCInterface{
 		}
 	}
 
+	public static void addReport(int pinID, String username, String text){
+		String add_report="INSERT INTO `reports` (`pinID`,`username`,`text`)"
+			+" VALUES ("+pinID+",'"+username+"','"+text+"');";
+		ExecuteUpdateTask eu = new ExecuteUpdateTask();
+		eu.executeOnExecutor(ExecuteUpdateTask.THREAD_POOL_EXECUTOR,add_report);
+	}
+
 	public static ArrayList<String[]> getPins() throws Exception{
 		String get_pins = "SELECT * FROM `pins`";
 		ExecuteQueryTask eq = new ExecuteQueryTask();
@@ -133,7 +150,8 @@ public class JDBCInterface{
 		while(rs.next()){
 			String[] pin = {rs.getString("position"),rs.getString("category")
 					,rs.getString("description"),rs.getString("username")
-					,rs.getString("pinID"),rs.getString("votes")};
+					,rs.getString("pinID"),rs.getString("votes")
+					,rs.getString("time")};
 			pins.add(pin);
 		}
 		return pins;
@@ -147,7 +165,8 @@ public class JDBCInterface{
 		while(rs.next()){
 			Pin pin = new Pin(rs.getString("position"),rs.getString("category")
 					,rs.getString("description"),rs.getString("username")
-					,Integer.parseInt(rs.getString("pinID")),Integer.parseInt(rs.getString("votes")));
+					,Integer.parseInt(rs.getString("pinID")),Integer.parseInt(rs.getString("votes"))
+					,Long.parseLong(rs.getString("time")));
 			pins.add(pin);
 		}
 		return pins;
