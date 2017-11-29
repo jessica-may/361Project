@@ -12,13 +12,14 @@ import android.os.AsyncTask;
 public class JDBCInterface{
 	public static String lastUsername;
 	public static void setupDBs(){
-		//set up pins and users databases
+		//set up tables
 		String create_pins = "CREATE TABLE IF NOT EXISTS `pins` ("
 				+ "`pinID` INT NOT NULL AUTO_INCREMENT,"
 				+ "`username` VARCHAR(255) NOT NULL,"
 				+ "`position` VARCHAR(255) NOT NULL,"
 				+ "`category` VARCHAR(255) NOT NULL,"
 				+ "`description` VARCHAR(255) NOT NULL,"
+				+ "`votes` INT DEFAULT 0,"
 				+ "PRIMARY KEY(`pinID`));";
 		String create_users="CREATE TABLE IF NOT EXISTS `users` ("
 				+ "`userID` INT NOT NULL AUTO_INCREMENT,"
@@ -30,20 +31,29 @@ public class JDBCInterface{
 				+ "`name` VARCHAR(255) NOT NULL,"
 				+ "`location` VARCHAR(255) NOT NULL,"
 				+ "PRIMARY KEY(`buildingID`));";
+		String create_votes="CREATE TABLE IF NOT EXISTS `votes` ("
+				+ "`voteID` INT NOT NULL AUTO_INCREMENT,"
+				+ "`pinID` INT NOT NULL,"
+				+ "`username` VARCHAR(255) NOT NULL,"
+				+ "`vote` INT NOT NULL,"
+				+ "PRIMARY KEY(`voteID`));";
 		ExecuteUpdateTask eu = new ExecuteUpdateTask();
 		eu.executeOnExecutor(ExecuteUpdateTask.THREAD_POOL_EXECUTOR,create_pins);
 		eu.executeOnExecutor(ExecuteUpdateTask.THREAD_POOL_EXECUTOR,create_users); //hopefully using execute twice is okay
 		eu.executeOnExecutor(ExecuteUpdateTask.THREAD_POOL_EXECUTOR,create_buildings);
+		eu.executeOnExecutor(ExecuteUpdateTask.THREAD_POOL_EXECUTOR,create_votes);
 	}
 
 	public static void clearDBs(){
 		String clear_pins = "truncate `pins`;";
 		String clear_users = "truncate `users`;";
 		String clear_buildings = "truncate `buildings`;";
+		String clear_votes = "truncate `votes`;";
 		ExecuteUpdateTask eu = new ExecuteUpdateTask();
 		eu.executeOnExecutor(ExecuteUpdateTask.THREAD_POOL_EXECUTOR,clear_pins);
 		eu.executeOnExecutor(ExecuteUpdateTask.THREAD_POOL_EXECUTOR,clear_users); //hopefully using execute twice is okay
 		eu.executeOnExecutor(ExecuteUpdateTask.THREAD_POOL_EXECUTOR,clear_buildings);
+		eu.executeOnExecutor(ExecuteUpdateTask.THREAD_POOL_EXECUTOR,clear_votes);
 	}
 
 	public static void addPin(String position, String description, String category, String username){
@@ -84,6 +94,37 @@ public class JDBCInterface{
 		eu.executeOnExecutor(ExecuteQueryTask.THREAD_POOL_EXECUTOR,del_user);
 	}
 
+	public static void addVote(String username, int pinID, int vote) throws Exception{
+		//clear any old vote for same pin by same user, then add new vote
+		String clear_old_vote="DELETE FROM `votes` WHERE `pinID`="+pinID
+			+" AND `username`='"+username+"';";
+		String add_vote="INSERT INTO `votes` (`username`,`pinID`,`vote`)"
+			+" VALUES ('"+username+"',"+pinID+","+vote+");";
+		ExecuteUpdateTask eu = new ExecuteUpdateTask();
+		eu.executeOnExecutor(ExecuteUpdateTask.THREAD_POOL_EXECUTOR,clear_old_vote);
+		eu.executeOnExecutor(ExecuteUpdateTask.THREAD_POOL_EXECUTOR,add_vote);
+		//count new total for pin
+		String get_votes_for_pin="SELECT * FROM `votes` WHERE"
+			+" `pinID`="+pinID+";";
+		ExecuteQueryTask eq = new ExecuteQueryTask();
+		ResultSet rs = eq.executeOnExecutor(ExecuteQueryTask.THREAD_POOL_EXECUTOR,get_votes_for_pin).get();
+		int voteTotal=0;
+		while(rs.next()){
+			voteTotal+=Integer.parseInt(rs.getString("vote"));
+		}
+		//set pin votes to counted total if >-3, otherwise remove
+		if (voteTotal>-3){
+			String set_votes="UPDATE `pins` SET `votes`="+voteTotal
+				+" WHERE `pinID`="+pinID+";";
+			eu.executeOnExecutor(ExecuteUpdateTask.THREAD_POOL_EXECUTOR,set_votes);
+		} else {
+			String del_pin="DELETE FROM `pins` WHERE `pinID`="+pinID+";";
+			String del_votes="DELETE FROM `votes` WHERE `pinID`="+pinID+";";
+			eu.executeOnExecutor(ExecuteUpdateTask.THREAD_POOL_EXECUTOR,del_pin);
+			eu.executeOnExecutor(ExecuteUpdateTask.THREAD_POOL_EXECUTOR,del_votes);
+		}
+	}
+
 	public static ArrayList<String[]> getPins() throws Exception{
 		String get_pins = "SELECT * FROM `pins`";
 		ExecuteQueryTask eq = new ExecuteQueryTask();
@@ -91,7 +132,8 @@ public class JDBCInterface{
 		ArrayList<String[]> pins = new ArrayList<String[]>(); //later user <Pin>
 		while(rs.next()){
 			String[] pin = {rs.getString("position"),rs.getString("category")
-					,rs.getString("description"),rs.getString("username")};
+					,rs.getString("description"),rs.getString("username")
+					,rs.getString("pinID"),rs.getString("votes")};
 			pins.add(pin);
 		}
 		return pins;
