@@ -111,8 +111,12 @@ public class JDBCInterface{
 		String add_vote="INSERT INTO `votes` (`username`,`pinID`,`vote`)"
 			+" VALUES ('"+username+"',"+pinID+","+vote+");";
 		ExecuteUpdateTask eu = new ExecuteUpdateTask();
+		System.out.println("a");
 		eu.executeOnExecutor(ExecuteUpdateTask.THREAD_POOL_EXECUTOR,clear_old_vote);
+		System.out.println("b");
+		eu= new ExecuteUpdateTask();
 		eu.executeOnExecutor(ExecuteUpdateTask.THREAD_POOL_EXECUTOR,add_vote);
+		System.out.println("c");
 		//count new total for pin
 		String get_votes_for_pin="SELECT * FROM `votes` WHERE"
 			+" `pinID`="+pinID+";";
@@ -123,15 +127,22 @@ public class JDBCInterface{
 			voteTotal+=Integer.parseInt(rs.getString("vote"));
 		}
 		//set pin votes to counted total if >-3, otherwise remove
+		System.out.println("d");
 		if (voteTotal>-3){
 			String set_votes="UPDATE `pins` SET `votes`="+voteTotal
 				+" WHERE `pinID`="+pinID+";";
+			eu= new ExecuteUpdateTask();
 			eu.executeOnExecutor(ExecuteUpdateTask.THREAD_POOL_EXECUTOR,set_votes);
+			System.out.println("e");
 		} else {
 			String del_pin="DELETE FROM `pins` WHERE `pinID`="+pinID+";";
 			String del_votes="DELETE FROM `votes` WHERE `pinID`="+pinID+";";
+			eu= new ExecuteUpdateTask();
 			eu.executeOnExecutor(ExecuteUpdateTask.THREAD_POOL_EXECUTOR,del_pin);
+			System.out.println("f");
+			eu= new ExecuteUpdateTask();
 			eu.executeOnExecutor(ExecuteUpdateTask.THREAD_POOL_EXECUTOR,del_votes);
+			System.out.println("g");
 		}
 	}
 
@@ -225,7 +236,8 @@ public class JDBCInterface{
 				ResultSet rs=st.executeQuery(params[0]);
 				return rs;
 			} catch(Exception e){
-				e.printStackTrace();
+				System.out.println("!!!"+e.getStackTrace());
+				//e.printStackTrace();
 				return null;
 			}
 		}
@@ -240,6 +252,7 @@ public class JDBCInterface{
 				System.out.println("got here");
 				return true;
 			} catch(Exception e){
+				System.out.println("!!!"+e.getStackTrace());
 				System.out.println("broken");
 				e.printStackTrace();
 				return false;

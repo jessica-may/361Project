@@ -28,7 +28,7 @@ public class FoodPin extends AppCompatActivity {
             public void onClick(View view){
                 final String comment = review.getText().toString();
                 final String location = local.getSelectedItem().toString();
-                JDBCInterface.addPin(location, comment, "food", JDBCInterface.lastUsername);
+                JDBCInterface.addPin(location, comment, "Food", JDBCInterface.lastUsername);
                 startActivity(new Intent(FoodPin.this, MapsActivity.class));
             }
 

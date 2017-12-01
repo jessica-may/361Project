@@ -28,7 +28,7 @@ public class FreeStuffPin extends AppCompatActivity {
             public void onClick(View view){
                 final String comment = review.getText().toString();
                 final String location = local.getSelectedItem().toString();
-                JDBCInterface.addPin(location, comment, "free stuff", JDBCInterface.lastUsername);
+                JDBCInterface.addPin(location, comment, "Free Stuff", JDBCInterface.lastUsername);
                 startActivity(new Intent(FreeStuffPin.this, MapsActivity.class));
             }
 

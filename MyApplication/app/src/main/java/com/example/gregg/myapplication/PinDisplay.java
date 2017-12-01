@@ -5,8 +5,10 @@ import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -16,7 +18,7 @@ import java.util.ArrayList;
  */
 
 public class PinDisplay extends AppCompatActivity{
-
+    private ArrayAdapter<String> desc;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,6 +33,10 @@ public class PinDisplay extends AppCompatActivity{
         final EditText vote = (EditText) findViewById(R.id.vote);
         int temp_vote = 0;
         name.setText(MapsActivity.type + " at " + position);
+        final ArrayList<String> comments = MapsActivity.comments;
+        final ListView list = (ListView) findViewById(R.id.comment_list);
+        desc = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, comments);
+
         try {
             for(Pin pin : JDBCInterface.getPinList()){
                 if(pin.pinID == id){
@@ -41,8 +47,8 @@ public class PinDisplay extends AppCompatActivity{
             e.printStackTrace();
         }
         vote.setText("VOTES: " + temp_vote);
+        list.setAdapter(desc);
 
-        
 
         report.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -66,6 +72,13 @@ public class PinDisplay extends AppCompatActivity{
             int temp_vote = 0;
             @Override
             public void onClick(View v) {
+
+                try {
+                    JDBCInterface.addVote(JDBCInterface.lastUsername, id, 1);
+                } catch (Exception e) {
+                    System.out.println("!!!"+e.getStackTrace());
+                    //e.printStackTrace();
+                }
                 try {
                     for(Pin pin : JDBCInterface.getPinList()){
                         if(pin.pinID == id){
@@ -76,11 +89,6 @@ public class PinDisplay extends AppCompatActivity{
                     e.printStackTrace();
                 }
                 vote.setText("VOTES: " + temp_vote);
-                try {
-                    JDBCInterface.addVote(JDBCInterface.lastUsername, id, 1);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
             }
         });
 
@@ -89,6 +97,11 @@ public class PinDisplay extends AppCompatActivity{
             @Override
             public void onClick(View v) {
                 try {
+                    JDBCInterface.addVote(JDBCInterface.lastUsername, id, -1);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                try {
                     for(Pin pin : JDBCInterface.getPinList()){
                         if(pin.pinID == id){
                             temp_vote = pin.votes;
@@ -98,11 +111,7 @@ public class PinDisplay extends AppCompatActivity{
                     e.printStackTrace();
                 }
                 vote.setText("VOTES: " + temp_vote);
-                try {
-                    JDBCInterface.addVote(JDBCInterface.lastUsername, id, -1);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+
             }
         });
     }

@@ -21,6 +21,10 @@ import java.util.HashMap;
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
+    static public int pinID;
+    static public String type;
+    static public ArrayList<String> comments = new ArrayList<>();
+    static public String position;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,41 +68,42 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         HashMap<String, Integer> pins = new HashMap<>();
 
         try {
-            for(String[] pin : JDBCInterface.getPins()){
-                pins.put(pin[0], 0);
+            for(Pin pin : JDBCInterface.getPinList()){
+                pins.put(pin.position, 0);
             }
-            System.out.println("!!!!!!!!!!!!" + pins + "!!!!!!!!!!!!");
-            for(String[] pin : JDBCInterface.getPins()){
-                int temp = pins.get(pin[0]);
+            for(Pin pin : JDBCInterface.getPinList()){
+                int temp = pins.get(pin.position);
                 temp++;
                 System.out.print(temp);
-                pins.put(pin[0], temp);
+                pins.put(pin.position, temp);
             }
-            System.out.println("!!!!!!!!!!!!" + pins+ "!!!!!!!!!!!/");
 
             for(String key : pins.keySet()){
                 if(pins.get(key) >= 3){
-                    System.out.println("!!!!!!!!!" + pins.get(key));
                     try {
                         String latLng = JDBCInterface.getBuildingLocation(key);
                         String[] split = latLng.split(",");
                         MarkerOptions marker = new MarkerOptions().position(new LatLng(Double.parseDouble(split[0]), Double.parseDouble(split[1]))).title(key);
                         mMap.addMarker(marker);
                         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-                            String type;
-                            ArrayList<String> comments = new ArrayList<String>();
                             @Override
                             public boolean onMarkerClick(Marker marker) {
+                                comments.clear();
                                 try {
-                                    for (String[] pins : JDBCInterface.getPins()) {
-                                        if (pins[0].equals(marker.getTitle())) {
-                                            comments.add(pins[2]);
-                                            type = pins[1];
+                                    for (Pin pins : JDBCInterface.getPinList()) {
+                                        if (pins.position.equals(marker.getTitle())) {
+                                            comments.add(pins.description);
+                                            type = pins.category;
+                                            position = pins.position;
+                                            pinID = pins.pinID;
+
                                         }
                                     }
                                 } catch (Exception e){
                                     e.printStackTrace();
                                 }
+
+                                startActivity(new Intent(MapsActivity.this, PinDisplay.class));
                                 return false;
                             }
 
