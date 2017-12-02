@@ -7,10 +7,33 @@ import java.sql.DriverManager;
 import java.sql.Statement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Vector;
+
 import android.os.AsyncTask;
+
+class DBRequest{
+	public DBRequest(String r){
+		request=r;
+		isUpdate=true;
+	}
+	public DBRequest(String r, ResultSetHolder h){
+		request=r;
+		isUpdate=false;
+		holder=h;
+	}
+	public String request;
+	boolean isUpdate; //otherwise is query
+	ResultSetHolder holder; //only used for queries
+}
+
+class ResultSetHolder{
+	public ResultSet rs;
+}
 
 public class JDBCInterface{
 	public static String lastUsername;
+	static Vector<DBRequest> requestQueue=new Vector<DBRequest>();
+	static ExecuteQueueTasks queueTask=new ExecuteQueueTasks();
 	public static void setupDBs(){
 		//set up tables
 		String create_pins = "CREATE TABLE IF NOT EXISTS `pins` ("
@@ -92,14 +115,14 @@ public class JDBCInterface{
 
 	public static void changePassword(String username, String password){
 		String change_pw="UPDATE `users` SET `password`='"+password
-		+"' WHERE `username`='"+username+"';";
+				+"' WHERE `username`='"+username+"';";
 		ExecuteUpdateTask eu = new ExecuteUpdateTask();
 		eu.executeOnExecutor(ExecuteQueryTask.THREAD_POOL_EXECUTOR,change_pw);
 	}
 
 	public static void deleteUser(String username){
 		String del_user="DELETE FROM `users` WHERE `username`='"
-		+username+"';";
+				+username+"';";
 		ExecuteUpdateTask eu = new ExecuteUpdateTask();
 		eu.executeOnExecutor(ExecuteQueryTask.THREAD_POOL_EXECUTOR,del_user);
 	}
@@ -107,21 +130,20 @@ public class JDBCInterface{
 	public static void addVote(String username, int pinID, int vote) throws Exception{
 		//clear any old vote for same pin by same user, then add new vote
 		String clear_old_vote="DELETE FROM `votes` WHERE `pinID`="+pinID
-			+" AND `username`='"+username+"';";
+				+" AND `username`='"+username+"';";
 		String add_vote="INSERT INTO `votes` (`username`,`pinID`,`vote`)"
-			+" VALUES ('"+username+"',"+pinID+","+vote+");";
+				+" VALUES ('"+username+"',"+pinID+","+vote+");";
 		ExecuteUpdateTask eu = new ExecuteUpdateTask();
 		System.out.println("a");
-		eu.executeOnExecutor(ExecuteUpdateTask.THREAD_POOL_EXECUTOR,clear_old_vote);
-		System.out.println("b");
-		eu= new ExecuteUpdateTask();
-		eu.executeOnExecutor(ExecuteUpdateTask.THREAD_POOL_EXECUTOR,add_vote);
-		System.out.println("c");
+		addRequestToQueue(clear_old_vote,null);
+		addRequestToQueue(add_vote,null);
 		//count new total for pin
 		String get_votes_for_pin="SELECT * FROM `votes` WHERE"
-			+" `pinID`="+pinID+";";
-		ExecuteQueryTask eq = new ExecuteQueryTask();
-		ResultSet rs = eq.executeOnExecutor(ExecuteQueryTask.THREAD_POOL_EXECUTOR,get_votes_for_pin).get();
+				+" `pinID`="+pinID+";";
+		ResultSetHolder holder=new ResultSetHolder();
+		addRequestToQueue(get_votes_for_pin,holder);
+		queueTask.get();
+		ResultSet rs=holder.rs;
 		int voteTotal=0;
 		while(rs.next()){
 			voteTotal+=Integer.parseInt(rs.getString("vote"));
@@ -130,27 +152,37 @@ public class JDBCInterface{
 		System.out.println("d");
 		if (voteTotal>-3){
 			String set_votes="UPDATE `pins` SET `votes`="+voteTotal
-				+" WHERE `pinID`="+pinID+";";
+					+" WHERE `pinID`="+pinID+";";
 			eu= new ExecuteUpdateTask();
 			eu.executeOnExecutor(ExecuteUpdateTask.THREAD_POOL_EXECUTOR,set_votes);
 			System.out.println("e");
 		} else {
 			String del_pin="DELETE FROM `pins` WHERE `pinID`="+pinID+";";
 			String del_votes="DELETE FROM `votes` WHERE `pinID`="+pinID+";";
-			eu= new ExecuteUpdateTask();
-			eu.executeOnExecutor(ExecuteUpdateTask.THREAD_POOL_EXECUTOR,del_pin);
-			System.out.println("f");
-			eu= new ExecuteUpdateTask();
-			eu.executeOnExecutor(ExecuteUpdateTask.THREAD_POOL_EXECUTOR,del_votes);
-			System.out.println("g");
+			addRequestToQueue(del_pin,null);
+			addRequestToQueue(del_votes,null);
 		}
 	}
 
 	public static void addReport(int pinID, String username, String text){
 		String add_report="INSERT INTO `reports` (`pinID`,`username`,`text`)"
-			+" VALUES ("+pinID+",'"+username+"','"+text+"');";
+				+" VALUES ("+pinID+",'"+username+"','"+text+"');";
 		ExecuteUpdateTask eu = new ExecuteUpdateTask();
 		eu.executeOnExecutor(ExecuteUpdateTask.THREAD_POOL_EXECUTOR,add_report);
+	}
+
+	public static int findVoteTotal(int pinID) throws Exception{
+		String get_votes_for_pin="SELECT * FROM `votes` WHERE"
+				+" `pinID`="+pinID+";";
+		ExecuteQueryTask eq = new ExecuteQueryTask();
+		System.out.println("ready to get stuff");
+		ResultSet rs = eq.executeOnExecutor(ExecuteQueryTask.THREAD_POOL_EXECUTOR,get_votes_for_pin).get();
+		int voteTotal=0;
+		System.out.println("got stuff into rs");
+		while(rs.next()){
+			voteTotal+=Integer.parseInt(rs.getString("vote"));
+		}
+		return voteTotal;
 	}
 
 	public static ArrayList<String[]> getPins() throws Exception{
@@ -230,14 +262,17 @@ public class JDBCInterface{
 
 	private static class ExecuteQueryTask extends AsyncTask<String,Object,ResultSet>{
 		protected ResultSet doInBackground(String... params){
+			System.out.println("start eq");
 			try{
 				Connection con=getConnection();
 				Statement st=con.createStatement();
 				ResultSet rs=st.executeQuery(params[0]);
+				System.out.println("end eq");
 				return rs;
 			} catch(Exception e){
 				System.out.println("!!!"+e.getStackTrace());
 				//e.printStackTrace();
+				System.out.println("end eq (ERR)");
 				return null;
 			}
 		}
@@ -245,18 +280,55 @@ public class JDBCInterface{
 
 	private static class ExecuteUpdateTask extends AsyncTask<String,Object,Boolean>{
 		protected Boolean doInBackground(String... params){
+			System.out.println("start eu");
 			try{
 				Connection con=getConnection();
 				Statement st=con.createStatement();
-				st.executeUpdate(params[0]);
-				System.out.println("got here");
+				for (String p : params)
+					st.executeUpdate(p);
+				//st.executeUpdate(params[0]);
+				System.out.println("end eu");
 				return true;
 			} catch(Exception e){
 				System.out.println("!!!"+e.getStackTrace());
-				System.out.println("broken");
+				System.out.println("end eu (ERR)");
 				e.printStackTrace();
 				return false;
 			}
+		}
+	}
+
+	public static void addRequestToQueue(String request, ResultSetHolder h){
+		if(h==null)
+			requestQueue.add(new DBRequest(request));
+		else
+			requestQueue.add(new DBRequest(request,h));
+		if(queueTask.getStatus()!= AsyncTask.Status.RUNNING){
+			queueTask.executeOnExecutor(ExecuteQueueTasks.THREAD_POOL_EXECUTOR);
+		}
+	}
+
+	private static class ExecuteQueueTasks extends AsyncTask<Void,Object,Boolean>{
+		protected Boolean doInBackground(Void... params){
+			while(JDBCInterface.requestQueue.size()>0) {
+				try {
+					Connection con = getConnection();
+					Statement st = con.createStatement();
+					String request=JDBCInterface.requestQueue.get(0).request;
+					boolean isUpdate=JDBCInterface.requestQueue.get(0).isUpdate;
+					if(isUpdate)
+						st.executeUpdate(request);
+					else
+						requestQueue.get(0).holder.rs=st.executeQuery(request);
+					JDBCInterface.requestQueue.remove(0);
+					System.out.println("completed request: "+request);
+				} catch (Exception e) {
+					System.out.println("!!!" + e.getStackTrace());
+					e.printStackTrace();
+				}
+			}
+			System.out.println("Queue now empty.");
+			return true;
 		}
 	}
 }
