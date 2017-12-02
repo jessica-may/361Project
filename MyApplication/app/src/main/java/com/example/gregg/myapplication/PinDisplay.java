@@ -69,7 +69,7 @@ public class PinDisplay extends AppCompatActivity{
         });
 
         upvote.setOnClickListener(new View.OnClickListener(){
-            int temp_vote = 0;
+            int votes = 0;
             @Override
             public void onClick(View v) {
 
@@ -77,23 +77,18 @@ public class PinDisplay extends AppCompatActivity{
                     JDBCInterface.addVote(JDBCInterface.lastUsername, id, 1);
                 } catch (Exception e) {
                     System.out.println("!!!"+e.getStackTrace());
-                    //e.printStackTrace();
                 }
                 try {
-                    for(Pin pin : JDBCInterface.getPinList()){
-                        if(pin.pinID == id){
-                            temp_vote = pin.votes;
-                        }
-                    }
+					votes=JDBCInterface.getVotes(id);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    System.out.println("!!!"+e.getStackTrace());
                 }
-                vote.setText("VOTES: " + temp_vote);
+                vote.setText("VOTES: " + votes);
             }
         });
 
         downvote.setOnClickListener(new View.OnClickListener(){
-            int temp_vote = 0;
+            int votes = 0;
             @Override
             public void onClick(View v) {
                 try {
@@ -102,15 +97,11 @@ public class PinDisplay extends AppCompatActivity{
                     e.printStackTrace();
                 }
                 try {
-                    for(Pin pin : JDBCInterface.getPinList()){
-                        if(pin.pinID == id){
-                            temp_vote = pin.votes;
-                        }
-                    }
+					votes=JDBCInterface.getVotes(id);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    System.out.println("!!!"+e.getStackTrace());
                 }
-                vote.setText("VOTES: " + temp_vote);
+                vote.setText("VOTES: " + votes);
 
             }
         });
