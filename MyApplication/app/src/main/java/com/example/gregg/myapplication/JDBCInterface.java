@@ -130,28 +130,41 @@ public class JDBCInterface{
 		addRequestToQueue(clear_old_vote,null);
 		addRequestToQueue(add_vote,null);
 		//count new total for pin
-		String get_votes_for_pin="SELECT * FROM `votes` WHERE"
-				+" `pinID`="+pinID+";";
-		ResultSetHolder holder=new ResultSetHolder();
-		addRequestToQueue(get_votes_for_pin,holder);
-		queueTask.get();
-		ResultSet rs=holder.rs;
+
+		Pin pin=getPin(pinID);
+		ArrayList<Pin> pinList=getPinList();
+		ArrayList<Pin> pinsAtB=new ArrayList<Pin>();
 		int voteTotal=0;
-		while(rs.next()){
-			voteTotal+=Integer.parseInt(rs.getString("vote"));
+		for (Pin p : pinList){
+			if(p.position.equals(pin.position)){
+				pinsAtB.add(p);
+				String get_votes_for_pin="SELECT * FROM `votes` WHERE"
+						+" `pinID`="+p.pinID+";";
+				ResultSetHolder holder=new ResultSetHolder();
+				addRequestToQueue(get_votes_for_pin,holder);
+				queueTask.get();
+				ResultSet rs=holder.rs;
+				while(rs.next()){
+					voteTotal+=Integer.parseInt(rs.getString("vote"));
+				}
+			}
 		}
+
 		//set pin votes to counted total if >-3, otherwise remove
 		System.out.println("d");
 		if (voteTotal>-3){
 			String set_votes="UPDATE `pins` SET `votes`="+voteTotal
 					+" WHERE `pinID`="+pinID+";";
 			addRequestToQueue(set_votes);
-			System.out.println("e");
 		} else {
-			String del_pin="DELETE FROM `pins` WHERE `pinID`="+pinID+";";
-			String del_votes="DELETE FROM `votes` WHERE `pinID`="+pinID+";";
+			for (Pin p : pinList){
+				if(p.position.equals(pin.position)){
+					String del_votes="DELETE FROM `votes` WHERE `pinID`="+p.pinID+";";
+					addRequestToQueue(del_votes);
+				}
+			}
+			String del_pin="DELETE FROM `pins` WHERE `position`='"+pin.position+"';";
 			addRequestToQueue(del_pin);
-			addRequestToQueue(del_votes);
 		}
 	}
 
@@ -166,9 +179,26 @@ public class JDBCInterface{
 				+" `pinID`="+pinID+";";
 		ResultSetHolder holder = new ResultSetHolder();
 		addRequestToQueue(get_votes,holder);
+		System.out.println("getVotes holder:"+holder);
 		queueTask.get();
-		int votes=Integer.parseInt(holder.rs.getString("votes"));
+		int votes=0;
+		if (holder.rs.next());
+		votes=Integer.parseInt(holder.rs.getString("votes"));
 		return votes;
+	}
+
+	public static Pin getPin(int pinID) throws Exception{
+		String get_pin="SELECT * FROM `pins` WHERE `pinID`="+pinID+";";
+		ResultSetHolder holder = new ResultSetHolder();
+		addRequestToQueue(get_pin,holder);
+		queueTask.get();
+		ResultSet rs = holder.rs;
+		rs.next();
+		Pin pin = new Pin(rs.getString("position"),rs.getString("category")
+				,rs.getString("description"),rs.getString("username")
+				,Integer.parseInt(rs.getString("pinID")),Integer.parseInt(rs.getString("votes"))
+				,Long.parseLong(rs.getString("time")));
+		return pin;
 	}
 
 	public static ArrayList<String[]> getPins() throws Exception{
@@ -194,8 +224,10 @@ public class JDBCInterface{
 		addRequestToQueue(get_pins,holder);
 		queueTask.get();
 		ResultSet rs = holder.rs;
+		System.out.println("getPinList rs: "+rs);
+		System.out.println(holder);
 		ArrayList<Pin> pins = new ArrayList<Pin>();
-		while(rs.next()){
+		while(rs!=null && rs.next()){
 			Pin pin = new Pin(rs.getString("position"),rs.getString("category")
 					,rs.getString("description"),rs.getString("username")
 					,Integer.parseInt(rs.getString("pinID")),Integer.parseInt(rs.getString("votes"))
@@ -295,28 +327,42 @@ public class JDBCInterface{
 	}
 
 	public static void addRequestToQueue(String request, ResultSetHolder h){
+		boolean newTask=false;
+		if(requestQueue.size()==0)
+			newTask=true;
 		if(h==null)
 			requestQueue.add(new DBRequest(request));
 		else
 			requestQueue.add(new DBRequest(request,h));
-		if(queueTask.getStatus()!= AsyncTask.Status.RUNNING){
+		//if(queueTask.getStatus()!= AsyncTask.Status.RUNNING){
+		if(newTask){
+			queueTask=new ExecuteQueueTasks();
 			queueTask.executeOnExecutor(ExecuteQueueTasks.THREAD_POOL_EXECUTOR);
 		}
+		System.out.println("new request: "+request);
 	}
 
 	private static class ExecuteQueueTasks extends AsyncTask<Void,Object,Boolean>{
 		protected Boolean doInBackground(Void... params){
 			while(JDBCInterface.requestQueue.size()>0) {
+				System.out.println(requestQueue);
 				try {
+					System.out.println("!!!start tq");
 					Connection con = getConnection();
+					System.out.println("!!!got connection");
 					Statement st = con.createStatement();
-					String request=JDBCInterface.requestQueue.get(0).request;
-					boolean isUpdate=JDBCInterface.requestQueue.get(0).isUpdate;
+					DBRequest request=JDBCInterface.requestQueue.get(0);
+					String rText=request.request;
+					boolean isUpdate=request.isUpdate;
+					System.out.println("holder in async: "+request.holder);
 					if(isUpdate)
-						st.executeUpdate(request);
-					else
-						requestQueue.get(0).holder.rs=st.executeQuery(request);
-					JDBCInterface.requestQueue.remove(0);
+						st.executeUpdate(rText);
+					else {
+						ResultSet rs = st.executeQuery(rText);
+						request.holder.rs = rs;
+						System.out.println("rs in async: "+rs+"("+request+")");
+					}
+					JDBCInterface.requestQueue.remove(request);
 					System.out.println("completed request: "+request);
 				} catch (Exception e) {
 					System.out.println("!!!" + e.getStackTrace());
