@@ -67,12 +67,11 @@ public class JDBCInterface{
 				+ "`username` VARCHAR(255) NOT NULL,"
 				+ "`text` VARCHAR(255) NOT NULL,"
 				+ "PRIMARY KEY(`reportID`));";
-		ExecuteUpdateTask eu = new ExecuteUpdateTask();
-		eu.executeOnExecutor(ExecuteUpdateTask.THREAD_POOL_EXECUTOR,create_pins);
-		eu.executeOnExecutor(ExecuteUpdateTask.THREAD_POOL_EXECUTOR,create_users); //hopefully using execute twice is okay
-		eu.executeOnExecutor(ExecuteUpdateTask.THREAD_POOL_EXECUTOR,create_buildings);
-		eu.executeOnExecutor(ExecuteUpdateTask.THREAD_POOL_EXECUTOR,create_votes);
-		eu.executeOnExecutor(ExecuteUpdateTask.THREAD_POOL_EXECUTOR,create_reports);
+		addRequestToQueue(create_pins);
+		addRequestToQueue(create_users);
+		addRequestToQueue(create_buildings);
+		addRequestToQueue(create_votes);
+		addRequestToQueue(create_reports);
 	}
 
 	public static void clearDBs(){
@@ -81,50 +80,44 @@ public class JDBCInterface{
 		String clear_buildings = "truncate `buildings`;";
 		String clear_votes = "truncate `votes`;";
 		String clear_reports = "truncate `reports`;";
-		ExecuteUpdateTask eu = new ExecuteUpdateTask();
-		eu.executeOnExecutor(ExecuteUpdateTask.THREAD_POOL_EXECUTOR,clear_pins);
-		eu.executeOnExecutor(ExecuteUpdateTask.THREAD_POOL_EXECUTOR,clear_users); //hopefully using execute twice is okay
-		eu.executeOnExecutor(ExecuteUpdateTask.THREAD_POOL_EXECUTOR,clear_buildings);
-		eu.executeOnExecutor(ExecuteUpdateTask.THREAD_POOL_EXECUTOR,clear_votes);
-		eu.executeOnExecutor(ExecuteUpdateTask.THREAD_POOL_EXECUTOR,clear_reports);
+		addRequestToQueue(clear_pins);
+		addRequestToQueue(clear_users);
+		addRequestToQueue(clear_buildings);
+		addRequestToQueue(clear_votes);
+		addRequestToQueue(clear_reports);
 	}
 
 	public static void addPin(String position, String description, String category, String username){
 		String add_pin="INSERT INTO `pins` "
 				+ "(`position`,`description`,`category`,`username`,`time`) VALUES "
 				+ "('"+position+"','"+description+"','"+category+"','"+username+"',"+System.currentTimeMillis()+");";
-		ExecuteUpdateTask eu = new ExecuteUpdateTask();
-		eu.executeOnExecutor(ExecuteQueryTask.THREAD_POOL_EXECUTOR,add_pin);
+		addRequestToQueue(add_pin);
 	}
 
 	public static void addUser(String username, String password){
 		String add_user="INSERT INTO `users` "
 				+ "(`username`,`password`) VALUES "
 				+ "('"+username+"','"+password+"');";
-		ExecuteUpdateTask eu = new ExecuteUpdateTask();
-		eu.executeOnExecutor(ExecuteQueryTask.THREAD_POOL_EXECUTOR,add_user);
+		addRequestToQueue(add_user);
 	}
 
 	public static void addBuilding(String name, String location){
 		String add_building="INSERT INTO `buildings` "
 				+ "(`name`,`location`) VALUES "
 				+ "('"+name+"','"+location+"');";
-		ExecuteUpdateTask eu = new ExecuteUpdateTask();
-		eu.executeOnExecutor(ExecuteQueryTask.THREAD_POOL_EXECUTOR,add_building);
+		addRequestToQueue(add_building);
 	}
 
 	public static void changePassword(String username, String password){
 		String change_pw="UPDATE `users` SET `password`='"+password
 				+"' WHERE `username`='"+username+"';";
-		ExecuteUpdateTask eu = new ExecuteUpdateTask();
-		eu.executeOnExecutor(ExecuteQueryTask.THREAD_POOL_EXECUTOR,change_pw);
+		addRequestToQueue(change_pw);
 	}
 
 	public static void deleteUser(String username){
 		String del_user="DELETE FROM `users` WHERE `username`='"
 				+username+"';";
-		ExecuteUpdateTask eu = new ExecuteUpdateTask();
-		eu.executeOnExecutor(ExecuteQueryTask.THREAD_POOL_EXECUTOR,del_user);
+		addRequestToQueue(del_user);
 	}
 
 	public static void addVote(String username, int pinID, int vote) throws Exception{
@@ -133,7 +126,6 @@ public class JDBCInterface{
 				+" AND `username`='"+username+"';";
 		String add_vote="INSERT INTO `votes` (`username`,`pinID`,`vote`)"
 				+" VALUES ('"+username+"',"+pinID+","+vote+");";
-		ExecuteUpdateTask eu = new ExecuteUpdateTask();
 		System.out.println("a");
 		addRequestToQueue(clear_old_vote,null);
 		addRequestToQueue(add_vote,null);
@@ -153,42 +145,38 @@ public class JDBCInterface{
 		if (voteTotal>-3){
 			String set_votes="UPDATE `pins` SET `votes`="+voteTotal
 					+" WHERE `pinID`="+pinID+";";
-			eu= new ExecuteUpdateTask();
-			eu.executeOnExecutor(ExecuteUpdateTask.THREAD_POOL_EXECUTOR,set_votes);
+			addRequestToQueue(set_votes);
 			System.out.println("e");
 		} else {
 			String del_pin="DELETE FROM `pins` WHERE `pinID`="+pinID+";";
 			String del_votes="DELETE FROM `votes` WHERE `pinID`="+pinID+";";
-			addRequestToQueue(del_pin,null);
-			addRequestToQueue(del_votes,null);
+			addRequestToQueue(del_pin);
+			addRequestToQueue(del_votes);
 		}
 	}
 
 	public static void addReport(int pinID, String username, String text){
 		String add_report="INSERT INTO `reports` (`pinID`,`username`,`text`)"
 				+" VALUES ("+pinID+",'"+username+"','"+text+"');";
-		ExecuteUpdateTask eu = new ExecuteUpdateTask();
-		eu.executeOnExecutor(ExecuteUpdateTask.THREAD_POOL_EXECUTOR,add_report);
+		addRequestToQueue(add_report);
 	}
 
-	public static int findVoteTotal(int pinID) throws Exception{
-		String get_votes_for_pin="SELECT * FROM `votes` WHERE"
+	public static int getVotes(int pinID) throws Exception{
+		String get_votes="SELECT * FROM `pins` WHERE"
 				+" `pinID`="+pinID+";";
-		ExecuteQueryTask eq = new ExecuteQueryTask();
-		System.out.println("ready to get stuff");
-		ResultSet rs = eq.executeOnExecutor(ExecuteQueryTask.THREAD_POOL_EXECUTOR,get_votes_for_pin).get();
-		int voteTotal=0;
-		System.out.println("got stuff into rs");
-		while(rs.next()){
-			voteTotal+=Integer.parseInt(rs.getString("vote"));
-		}
-		return voteTotal;
+		ResultSetHolder holder = new ResultSetHolder();
+		addRequestToQueue(get_votes,holder);
+		queueTask.get();
+		int votes=Integer.parseInt(holder.rs.getString("votes"));
+		return votes;
 	}
 
 	public static ArrayList<String[]> getPins() throws Exception{
 		String get_pins = "SELECT * FROM `pins`";
-		ExecuteQueryTask eq = new ExecuteQueryTask();
-		ResultSet rs = eq.executeOnExecutor(ExecuteQueryTask.THREAD_POOL_EXECUTOR,get_pins).get();
+		ResultSetHolder holder = new ResultSetHolder();
+		addRequestToQueue(get_pins,holder);
+		queueTask.get();
+		ResultSet rs = holder.rs;
 		ArrayList<String[]> pins = new ArrayList<String[]>(); //later user <Pin>
 		while(rs.next()){
 			String[] pin = {rs.getString("position"),rs.getString("category")
@@ -202,8 +190,10 @@ public class JDBCInterface{
 
 	public static ArrayList<Pin> getPinList() throws Exception{
 		String get_pins = "SELECT * FROM `pins`";
-		ExecuteQueryTask eq = new ExecuteQueryTask();
-		ResultSet rs = eq.executeOnExecutor(ExecuteQueryTask.THREAD_POOL_EXECUTOR,get_pins).get();
+		ResultSetHolder holder = new ResultSetHolder();
+		addRequestToQueue(get_pins,holder);
+		queueTask.get();
+		ResultSet rs = holder.rs;
 		ArrayList<Pin> pins = new ArrayList<Pin>();
 		while(rs.next()){
 			Pin pin = new Pin(rs.getString("position"),rs.getString("category")
@@ -217,8 +207,10 @@ public class JDBCInterface{
 
 	public static String getPassword(String username) throws Exception{
 		String get_user="SELECT * FROM `users` WHERE `username`='"+username+"';";
-		ExecuteQueryTask eq=new ExecuteQueryTask();
-		ResultSet rs=eq.executeOnExecutor(ExecuteQueryTask.THREAD_POOL_EXECUTOR,get_user).get();
+		ResultSetHolder holder = new ResultSetHolder();
+		addRequestToQueue(get_user,holder);
+		queueTask.get();
+		ResultSet rs = holder.rs;
 		String password=null;
 		while(rs.next()){
 			password=rs.getString("password");
@@ -296,6 +288,10 @@ public class JDBCInterface{
 				return false;
 			}
 		}
+	}
+
+	public static void addRequestToQueue(String request){
+		addRequestToQueue(request, null);
 	}
 
 	public static void addRequestToQueue(String request, ResultSetHolder h){
