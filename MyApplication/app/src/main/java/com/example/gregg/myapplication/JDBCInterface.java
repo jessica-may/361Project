@@ -57,7 +57,7 @@ public class JDBCInterface{
 				+ "PRIMARY KEY(`buildingID`));";
 		String create_votes="CREATE TABLE IF NOT EXISTS `votes` ("
 				+ "`voteID` INT NOT NULL AUTO_INCREMENT,"
-				+ "`pinID` INT NOT NULL,"
+				+ "`position` VARCHAR(255) NOT NULL,"
 				+ "`username` VARCHAR(255) NOT NULL,"
 				+ "`vote` INT NOT NULL,"
 				+ "PRIMARY KEY(`voteID`));";
@@ -120,51 +120,37 @@ public class JDBCInterface{
 		addRequestToQueue(del_user);
 	}
 
-	public static void addVote(String username, int pinID, int vote) throws Exception{
+	public static void addVote(String username, String position, int vote) throws Exception{
 		//clear any old vote for same pin by same user, then add new vote
-		String clear_old_vote="DELETE FROM `votes` WHERE `pinID`="+pinID
-				+" AND `username`='"+username+"';";
-		String add_vote="INSERT INTO `votes` (`username`,`pinID`,`vote`)"
-				+" VALUES ('"+username+"',"+pinID+","+vote+");";
+		String clear_old_vote="DELETE FROM `votes` WHERE `position`='"+position
+				+"' AND `username`='"+username+"';";
+		String add_vote="INSERT INTO `votes` (`username`,`position`,`vote`)"
+				+" VALUES ('"+username+"','"+position+"',"+vote+");";
 		System.out.println("a");
 		addRequestToQueue(clear_old_vote,null);
 		addRequestToQueue(add_vote,null);
-		//count new total for pin
-
-		Pin pin=getPin(pinID);
-		ArrayList<Pin> pinList=getPinList();
-		ArrayList<Pin> pinsAtB=new ArrayList<Pin>();
+		//count new vote total for pin
+		String get_votes_for_position="SELECT * FROM `votes` WHERE `position`='"+position+"';";
+		ResultSetHolder holder=new ResultSetHolder();
+		addRequestToQueue(get_votes_for_position);
+		queueTask.get();
+		ResultSet rs=holder.rs;
 		int voteTotal=0;
-		for (Pin p : pinList){
-			if(p.position.equals(pin.position)){
-				pinsAtB.add(p);
-				String get_votes_for_pin="SELECT * FROM `votes` WHERE"
-						+" `pinID`="+p.pinID+";";
-				ResultSetHolder holder=new ResultSetHolder();
-				addRequestToQueue(get_votes_for_pin,holder);
-				queueTask.get();
-				ResultSet rs=holder.rs;
-				while(rs.next()){
-					voteTotal+=Integer.parseInt(rs.getString("vote"));
-				}
-			}
+		while(rs.next()){
+			voteTotal+=Integer.parseInt(rs.getString("vote"));
 		}
 
 		//set pin votes to counted total if >-3, otherwise remove
 		System.out.println("d");
 		if (voteTotal>-3){
 			String set_votes="UPDATE `pins` SET `votes`="+voteTotal
-					+" WHERE `pinID`="+pinID+";";
+					+" WHERE `position`='"+position+"';";
 			addRequestToQueue(set_votes);
 		} else {
-			for (Pin p : pinList){
-				if(p.position.equals(pin.position)){
-					String del_votes="DELETE FROM `votes` WHERE `pinID`="+p.pinID+";";
-					addRequestToQueue(del_votes);
-				}
-			}
-			String del_pin="DELETE FROM `pins` WHERE `position`='"+pin.position+"';";
-			addRequestToQueue(del_pin);
+			String del_pins="DELETE FROM `pins` WHERE `position`='"+position+"';";
+			String del_votes="DELETE FROM `votes` WHERE `position`='+position+"';";
+			addRequestToQueue(del_pins);
+			addRequestToQueue(del_votes);
 		}
 	}
 
@@ -174,15 +160,15 @@ public class JDBCInterface{
 		addRequestToQueue(add_report);
 	}
 
-	public static int getVotes(int pinID) throws Exception{
+	public static int getVotes(String position) throws Exception{
 		String get_votes="SELECT * FROM `pins` WHERE"
-				+" `pinID`="+pinID+";";
+				+" `position`='"+position+"';";
 		ResultSetHolder holder = new ResultSetHolder();
 		addRequestToQueue(get_votes,holder);
 		System.out.println("getVotes holder:"+holder);
 		queueTask.get();
 		int votes=0;
-		if (holder.rs.next());
+		holder.rs.next()
 		votes=Integer.parseInt(holder.rs.getString("votes"));
 		return votes;
 	}
