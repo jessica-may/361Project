@@ -53,7 +53,9 @@ public class LoginActivity extends AppCompatActivity {
                 final String userPassword = password.getText().toString();
 
                         try {
+                            System.out.println("!!!before");
                             String goodPas = JDBCInterface.getPassword(userEmail);
+                            System.out.println("!!!after");
                             System.out.println("goodPas="+goodPas);
                             if (userPassword.equals(goodPas)) {
                                 startActivity(new Intent(LoginActivity.this, MapsActivity.class));

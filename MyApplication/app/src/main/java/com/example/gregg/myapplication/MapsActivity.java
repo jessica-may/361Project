@@ -68,10 +68,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         HashMap<String, Integer> pins = new HashMap<>();
 
         try {
-            for(Pin pin : JDBCInterface.getPinList()){
+            ArrayList<Pin> pinList = JDBCInterface.getPinList();
+            for(Pin pin : pinList){
                 pins.put(pin.position, 0);
             }
-            for(Pin pin : JDBCInterface.getPinList()){
+            for(Pin pin : pinList){
                 int temp = pins.get(pin.position);
                 temp++;
                 System.out.print(temp);

@@ -74,12 +74,12 @@ public class PinDisplay extends AppCompatActivity{
             public void onClick(View v) {
 
                 try {
-                    JDBCInterface.addVote(JDBCInterface.lastUsername, id, 1);
+                    JDBCInterface.addVote(JDBCInterface.lastUsername, position, 1);
                 } catch (Exception e) {
                     System.out.println("!!!"+e.getStackTrace());
                 }
                 try {
-					votes=JDBCInterface.getVotes(id);
+					votes=JDBCInterface.getVotes(position);
                 } catch (Exception e) {
                     System.out.println("!!!"+e.getStackTrace());
                 }
@@ -92,12 +92,12 @@ public class PinDisplay extends AppCompatActivity{
             @Override
             public void onClick(View v) {
                 try {
-                    JDBCInterface.addVote(JDBCInterface.lastUsername, id, -1);
+                    JDBCInterface.addVote(JDBCInterface.lastUsername, position, -1);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
                 try {
-					votes=JDBCInterface.getVotes(id);
+					votes=JDBCInterface.getVotes(position);
                 } catch (Exception e) {
                     System.out.println("!!!"+e.getStackTrace());
                 }

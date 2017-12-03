@@ -132,7 +132,7 @@ public class JDBCInterface{
 		//count new vote total for pin
 		String get_votes_for_position="SELECT * FROM `votes` WHERE `position`='"+position+"';";
 		ResultSetHolder holder=new ResultSetHolder();
-		addRequestToQueue(get_votes_for_position);
+		addRequestToQueue(get_votes_for_position, holder);
 		queueTask.get();
 		ResultSet rs=holder.rs;
 		int voteTotal=0;
@@ -148,7 +148,7 @@ public class JDBCInterface{
 			addRequestToQueue(set_votes);
 		} else {
 			String del_pins="DELETE FROM `pins` WHERE `position`='"+position+"';";
-			String del_votes="DELETE FROM `votes` WHERE `position`='+position+"';";
+			String del_votes="DELETE FROM `votes` WHERE `position`='"+position+"';";
 			addRequestToQueue(del_pins);
 			addRequestToQueue(del_votes);
 		}
@@ -168,7 +168,7 @@ public class JDBCInterface{
 		System.out.println("getVotes holder:"+holder);
 		queueTask.get();
 		int votes=0;
-		holder.rs.next()
+		holder.rs.next();
 		votes=Integer.parseInt(holder.rs.getString("votes"));
 		return votes;
 	}
