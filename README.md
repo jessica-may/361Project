@@ -41,10 +41,22 @@
  that building.
  
  When on the map screen, if a user clicks on a marker that is present, the MapsActivity class will activate the PinDisplay 
- class, activity_pin_display.xml for the UI. On this screen, the type of pin and location will be displayed i.e. "Food at 
+ class, activity_pin_display.xml for the UI. On this screen, the type of pin and location will be displayed e.g. "Food at 
  Avery". Below this title, there will be a vote count displayed that shows if other users backed this event up by upvoting it, 
  or downvoted to say that it wasn't going on anymore. If there are 3 downvotes, the pin will be removed. Below the vote count, 
  all the comments entered during the pin creation form will be displayed. Below this the upvote and downvote buttons are 
  available as well as a report button. This report button allows users to report an event if there are harmful comments taking
  place or the event is not real.
 
+ # Database Component
+ The application uses a MySQL database to store users, buildings, pins, votes, and reports. All database interactions are handled by the
+ JDBCInterface class. The Connector/J jarfile available on the MySQL website along with java.sql packages are used to communicate
+ with the database. Because the Android operating system does not allow internet access on an application's main thread, database
+ actions are run in ExecuteQueueTasks, which extends android.os.AsyncTask. Queued database tasks are stored in a java.util.Vector
+ of DBRequest objects. Each of these objects stores the text of a MySQL statement, a boolean representing whether the statement is
+ an update or a query, and a ResultSetHolder to allow query results to be accessed from the main thread. The method
+ addRequestToQueue is used to add new requests to the queue. This method first checks whether the queue is empty. The new request
+ is then added to the queue, and if the queue was empty when checked then a new instance of ExecuteQueueTasks is created. Update
+ requests can be added only need to be added to the queue, but query requests require a little more. After the query request is
+ added, queueTasks.get() is used to block the main thread until the query is complete and the ResultSet is then acquired from the
+ ResultSetHolder. 
