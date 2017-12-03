@@ -1,0 +1,80 @@
+        <item>Abel/Sandoz</item>
+        <item>Adele Learning Commons</item>
+        <item>ADPi (Greek House)</item>
+        <item>AGN (Greek House)</item>
+        <item>AGR (Greek House)</item>
+        <item>Agriculture Hall</item>
+        <item>Animal Science</item>
+        <item>APhi (Greek House)</item>
+        <item>AOPi (Greek House)</item>
+        <item>Architecture</item>
+        <item>ATO (Greek House)</item>
+        <item>Avery</item>
+        <item>AXO (Greek House)</item>
+        <item>AZD (Greek House)</item>
+        <item>Beta Theta Pi (Greek House)</item>
+        <item>Bessey</item>
+        <item>Beadle</item>
+        <item>Broyhill Fountain</item>
+        <item>Cather Dining</item>
+        <item>Chase Hall</item>
+        <item>Coliseum</item>
+        <item>Courtyards</item>
+        <item>CY Thompson Library</item>
+        <item>Dairy Store</item>
+        <item>Devaney Center</item>
+        <item>DU (Greek House)</item>
+        <item>DTD (Greek House)</item>
+        <item>Eastside Suites</item>
+        <item>East Campus Rec</item>
+        <item>East Union</item>
+        <item>Entomology Hall</item>
+        <item>Greenspace</item>
+        <item>GPhi (Greek House)</item>
+        <item>Hardin Hall</item>
+        <item>Harper</item>
+        <item>Harper Dining</item>
+        <item>Hamilton</item>
+        <item>Health Center</item>
+        <item>Home Ecnomoics Building</item>
+        <item>Innovation Campus</item>
+        <item>Henzlik</item>
+        <item>Kimball</item>
+        <item>KAO (Greek House)</item>
+        <item>KKG (Greek House)</item>
+        <item>Knoll</item>
+        <item>Jorgensen</item>
+        <item>Love Library</item>
+        <item>Lied</item>
+        <item>Mable Lee</item>
+        <item>Manter</item>
+        <item>Memorial Stadium</item>
+        <item>Mueller Tower</item>
+        <item>Morrill</item>
+        <item>Neihardt</item>
+        <item>Old Father</item>
+        <item>Othmer</item>
+        <item>Phi Mu (Greek House)</item>
+        <item>Pi Kappa Phi (Greek House)</item>
+        <item>Plant Science Hall</item>
+        <item>Teachers College</item>
+        <item>Temple</item>
+        <item>The Rec</item>
+        <item>Tri Delta (Greek House)</item>
+        <item>Richards</item>
+        <item>Mary Riepma Ross Media Arts</item>
+        <item>Schorr</item>
+        <item>Schramm</item>
+        <item>Scott Engineering Center</item>
+        <item>Selleck Quadlrangle</item>
+        <item>Sheldon</item>
+        <item>Sigma Chi (Greek House)</item>
+        <item>Smith</item>
+        <item>Union</item>
+        <item>University Suites</item>
+        <item>Village</item>
+        <item>Vine Street Fields</item>
+        <item>XO (Greek House)</item>
+        <item>Westbrook</item>
+        <item>Wick Alumni Center</item>
+        <item>501 Building</item>

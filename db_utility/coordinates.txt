@@ -1,0 +1,83 @@
+Broyhill Fountain: 40.818208, -96.700508
+Greenspace: 40.818665, -96.700628
+Selleck Quadlrangle: 40.818964, -96.699622
+Adele Learning Commons: 40.818573, -96.702621
+Love Library: 40.817788, -96.702519
+Avery: 40.819474, -96.704416
+Schorr: 40.819579, -96.705568
+Memorial Stadium: 40.820628, -96.705690
+The rec: 40.821845, -96.702046
+Health Center: 40.820132, -96.699257
+Henzlik: 40.821074, -96.699806
+Coliseum: 40.821488, -96.702571
+Morrill: 40.819907, -96.701874
+Teachers College: 40.821390, -96.700274
+Mabel Lee: 40.822238, -96.699841
+Mueller Tower: 40.820132, -96.702582
+Bessey: 40.819984, -96.703266
+Old Father: 40.819708, -96.703510
+Hamilton: 40.818733, -96.704591
+Manter: 40.818831, -96.705346
+Richards: 40.818773, -96.706330
+Westbrook: 40.816748, -96.705840
+501 Building: 40.818496, -96.707408
+Architecture: 40.817401, -96.706176
+Kimball: 40.816695, -96.705058
+Lied: 40.816373, -96.704878
+Sheldon: 40.817542, -96.704461
+Temple: 40.816616, -96.703682
+Mary Riepma Ross Media Arts: 40.816481, -96.703338
+Knoll: 40.817595, -96.696228
+University Suites: 40.817617, -96.695300
+Eastside Suites: 40.817480, -96.694468
+Neihardt: 40.818670, -96.697567
+Cather Dining: 40.818821, -96.695979
+HSS: 40.824995, -96.699776
+Courtyards: 40.820103, -96.697036
+Abel/Sandoz: 40.821755, -96.695809
+Othmer: 40.821262, -96.697300
+Jorgensen: 40.821833, -96.698534
+Village: 40.824078, -96.699188
+Beadle: 40.819154, -96.693053
+Scott Engineering Center: 40.822062, -96.697551
+Vine Street Fields: 40.819786, -96.695575
+Wick Alumni Center: 40.817297, -96.699017
+Innovation Campus: 40.832554, -96.692890
+Devaney Center: 40.830333, -96.698957
+Dairy Store: 40.828912, -96.667063
+East Union: 40.830195, -96.66374
+CY Thompson Library: 40.829448, -96.666232
+Animal Science: 40.832039, -96.664440
+Agriculture Hall: 40.829335, -96.669429
+East Campus Rec: 40.830808, -96.670298
+Hardin Hall: 40.828791, -96.672111
+Chase Hall: 40.831398, -96.668978
+Entomology Hall: 40.83430, -96.664574
+Home Ecnomoics Building: 40.830017, -96.669482
+Plant Science Hall: 40.831230, -96.6660971
+AGR (Greek House): 40.827671, -96.668302
+DU (Greek House): 40.821050, -96.698516
+AGN (Greek House): 40.827358, -96.674353
+Sigma Chi (Greek House): 40.821115, -96.698986
+AXO (Greek House): 40.820456, -96.697750
+XO (Greek House): 40.817948, -96.697730
+DTD (Greek House): 40.820237, -96.698558
+Phi Mu (Greek House): 40.819637, -96.697666
+KKG (Greek House): 40.819421, -96.697636
+KAO (Greek House): 40.817664, -96.698487
+AOPi (Greek House): 40.817723, -96.698683
+APhi (Greek House): 40.817654, -96.699036
+GPhi (Greek House): 40.817347, -96.698615
+Tri Delta (Greek House): 40.816586, -96.697867
+AZD (Greek House): 40.816582, -96.697510
+ADPi (Greek House): 40.816623, -96.697059
+Beta Theta Pi (Greek House): 40.816590, -96.699200
+ATO (Greek House): 40.816610, -96.700129
+Fiji (Greek House): 40.816627, -96.700450
+Pi Kappa Phi (Greek House): 40.818485, -96.698590
+Harper Dining: 40.825008, -96.699897
+Harper: 40.825365, -96.699608
+Mable Lee: 40.821825, -96.700337
+Schramm: 40.824860, -96.699290
+Smith: 40.824712, -96.700117
+Union: 40.817568, -96.700320
